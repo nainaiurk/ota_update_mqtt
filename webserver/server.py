@@ -18,7 +18,7 @@ CONTROL_TOPIC = "esp32/ota/control"
 LOG_TOPIC = "esp32/ota/log" 
 
 # Firmware chunk size
-CHUNK_SIZE = 32768   # 8 KB
+CHUNK_SIZE = 8192   # 8 KB
 
 # --- Flask App Setup ---
 app = Flask(__name__)

@@ -5,7 +5,7 @@
 #include <PubSubClient.h>
 
 #define FIRMWARE_VERSION 3.0
-#define CHUNK_SIZE 32768  // Must match the chunk size in your Flask server
+#define CHUNK_SIZE 8192  // Must match the chunk size in your Flask server
 
 // --- WiFi Credentials ---
 // Replace with your network credentials

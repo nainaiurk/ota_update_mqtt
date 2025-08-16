@@ -1,0 +1,45 @@
+name: OTA Firmware Deployment
+
+on:
+  push:
+    branches:
+      - main # This workflow will run on every push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install paho-mqtt platformio
+
+      - name: Build PlatformIO Project
+        run: |
+          pio run -e espressif32
+          FIRMWARE_BIN_PATH=$(find . -path '*/.pio/build/espressif32/firmware.bin' -print -quit)
+          echo "FIRMWARE_BIN_PATH=$FIRMWARE_BIN_PATH" >> $GITHUB_ENV
+          echo "Firmware file created at: $FIRMWARE_BIN_PATH"
+          ls -la $FIRMWARE_BIN_PATH
+      
+      - name: Deploy OTA firmware
+        if: success()
+        env:
+          MQTT_USER: ${{ secrets.MQTT_USER }}
+          MQTT_PASS: ${{ secrets.MQTT_PASS }}
+          MQTT_BROKER_IP: ${{ secrets.MQTT_BROKER_IP }}
+          FIRMWARE_FILE: ${{ env.FIRMWARE_BIN_PATH }}
+          DEVICE_ID: Smart_Dual_Board2
+          OTA_CONTROL_TOPIC: Smart_Dual_Board2/ota/control
+          FIRMWARE_TOPIC: Smart_Dual_Board2/ota/firmware
+        run: |
+          python deploy_firmware.py
